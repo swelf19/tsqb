@@ -1,0 +1,13 @@
+package example
+
+import "github.com/jackc/pgtype"
+
+
+//User -
+//tsqb:gen
+//tsqb:tablename=users
+type User struct {
+	ID       int    `tsqb:"col=id"`
+	UserName string `tsqb:"col=username"`
+	LastLog  pgtype.Timestamptz `tsqb:"col=last_log"`
+}
