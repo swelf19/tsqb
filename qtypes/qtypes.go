@@ -18,11 +18,11 @@ var (
 	LessOrEqualThan    EqualConditions = "<="
 )
 
-type WhereLinks string
+type ComposeMethod string
 
 var (
-	WhereAnd WhereLinks = "and"
-	WhereOr  WhereLinks = "or"
+	WhereAnd ComposeMethod = "and"
+	WhereOr  ComposeMethod = "or"
 )
 
 type QueryType string
@@ -46,4 +46,9 @@ type DBConnection interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
+}
+
+type InsertParam struct {
+	Name  string
+	Value interface{}
 }

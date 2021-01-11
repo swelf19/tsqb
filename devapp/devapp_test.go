@@ -32,6 +32,7 @@ func (suite *QueryBuilderTestSuite) TestBuildQuery() {
 	expected = "select id,storename from stores"
 	actual = bs.Select().SQL()
 	suite.Equal(expected, actual)
+
 }
 
 func (suite *QueryBuilderTestSuite) TestConditionQuery() {
@@ -39,19 +40,28 @@ func (suite *QueryBuilderTestSuite) TestConditionQuery() {
 	expected := "select id,username,last_log from users where users.id = $1 and users.id = $2"
 	actual := b.Select().Where(b.CondEqID(1), b.CondEqID(2)).SQL()
 	suite.Equal(expected, actual)
-	suite.Equal(2, len(b.SelectParams))
+	expectedParams := []interface{}{
+		1,
+		2,
+	}
+	suite.Equal(expectedParams, b.GetStmtParams())
 
 	// b = NewUserBuilder()
-	expected = "select id,username,last_log from users where users.id = $1 and (users.username = $2 or users.username = $3)"
+	expected = "select id,username,last_log from users where users.id = $1 and (users.username = $2 or users.last_log = $3)"
 	actual = b.Select().Where(
 		b.CondEqID(1),
 		b.ComposeOr(
 			b.CondEqUserName("swelf"),
-			b.CondEqUserName("admin"),
+			b.CondEqLastLog("admin"),
 		),
 	).SQL()
 	suite.Equal(expected, actual)
-	suite.Equal(3, len(b.SelectParams))
+	expectedParams = []interface{}{
+		1,
+		"swelf",
+		"admin",
+	}
+	suite.Equal(expectedParams, b.GetStmtParams())
 
 	expected = "select id,username,last_log from users where users.id = $1 and (users.username = $2 or users.username = $3 or (users.username = $4 and users.username = $5) or (users.username = $6 and users.username = $7))"
 	actual = b.Select().Where(
@@ -64,13 +74,22 @@ func (suite *QueryBuilderTestSuite) TestConditionQuery() {
 				b.CondEqUserName("lalala2"),
 			),
 			b.ComposeAnd(
-				b.CondEqUserName("lalala"),
-				b.CondEqUserName("lalala2"),
+				b.CondEqUserName("lalala3"),
+				b.CondEqUserName("lalala4"),
 			),
 		),
 	).SQL()
 	suite.Equal(expected, actual)
-	suite.Equal(7, len(b.SelectParams))
+	expectedParams = []interface{}{
+		1,
+		"swelf",
+		"admin",
+		"lalala",
+		"lalala2",
+		"lalala3",
+		"lalala4",
+	}
+	suite.Equal(expectedParams, b.GetStmtParams())
 }
 
 func (suite *QueryBuilderTestSuite) TestLimitQuery() {
@@ -131,9 +150,77 @@ func (suite *QueryBuilderTestSuite) TestInsertQuery() {
 		UserName: "lala",
 		LastLog:  "today",
 	}
-	expected := "insert into users(id,username,last_log) values($1,$2,$3)"
-	actual := b.Insert().Values(u).SQL()
+
+	expected := "insert into users(id,username,last_log) values($1,$2,$3) returning id"
+	actual := b.Insert(u).ReturningID().SQL()
 	suite.Equal(expected, actual)
+	insertParams := []interface{}{}
+	for _, i := range b.InsertParams {
+		insertParams = append(insertParams, i.Value)
+	}
+	expectedParams := []interface{}{
+		1,
+		"lala",
+		"today",
+	}
+	suite.Equal(expectedParams, insertParams)
+
+	u1 := User{
+		ID:       0,
+		UserName: "lala",
+		LastLog:  "today",
+	}
+	expected = "insert into users(username,last_log) values($1,$2) returning id"
+	actual = b.Insert(u1).ReturningID().SQL()
+	suite.Equal(expected, actual)
+	insertParams = []interface{}{}
+	expectedParams = []interface{}{
+		"lala",
+		"today",
+	}
+	for _, i := range b.InsertParams {
+		insertParams = append(insertParams, i.Value)
+	}
+	suite.Equal(expectedParams, insertParams)
+	// c := b.Insert(u).ReturningID()
+}
+
+func (suite *QueryBuilderTestSuite) TestUpdateQuery() {
+	b := NewUserBuilder()
+	u := User{
+		ID:       1,
+		UserName: "lala",
+		LastLog:  "today",
+	}
+
+	expected := "update users set username = $1, last_log = $2"
+	actual := b.Update(u).SQL()
+	suite.Equal(expected, actual)
+	expectedParams := []interface{}{
+		"lala",
+		"today",
+	}
+	suite.Equal(expectedParams, b.GetStmtParams())
+
+	expected = "update users set username = $2, last_log = $3 where users.id = $1"
+	actual = b.Update(u).Where(b.CondEqID(u.ID)).SQL()
+	suite.Equal(expected, actual)
+	expectedParams = []interface{}{
+		1,
+		"lala",
+		"today",
+	}
+	suite.Equal(expectedParams, b.GetStmtParams())
+
+	// u1 := User{
+	// 	ID:       0,
+	// 	UserName: "lala",
+	// 	LastLog:  "today",
+	// }
+	// expected = "insert into users(username,last_log) values($1,$2) returning id"
+	// actual = b.Insert(u1).ReturningID().SQL()
+	// suite.Equal(expected, actual)
+	// c := b.Insert(u).ReturningID()
 }
 
 func TestTemplateProcessor(t *testing.T) {

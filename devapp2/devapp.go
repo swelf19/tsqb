@@ -4,7 +4,7 @@
 кверибилдер(devapp_gen.go) для sampleapp генерируем из структур
 */
 
-package devapp
+package devapp2
 
 //User -
 //tsqb:gen

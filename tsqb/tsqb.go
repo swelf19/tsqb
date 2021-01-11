@@ -1,8 +1,6 @@
 package main
 
 import (
-	"go/parser"
-	"go/token"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,16 +14,6 @@ import (
 func makefilename(path string) string {
 	newpath := strings.TrimSuffix(path, ".go") + "_gen.go"
 	return newpath
-}
-
-func getPackageName(path string) string {
-	fset := token.NewFileSet() // positions are relative to fset
-	astFile, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
-	if err != nil {
-		log.Println(err)
-		return ""
-	}
-	return astFile.Name.Name
 }
 
 func main() {
@@ -45,7 +33,7 @@ func main() {
 				if len(structs) > 0 {
 					newFileName := makefilename(path)
 					// fmt.Println(newFileName)
-					packageName := getPackageName(path)
+					packageName := tsqbparser.GetPackageName(path)
 					filemeta := gen.NewFileMeta(structs, packageName, path, pr.ExtraImports)
 					fileContent := filemeta.GenFileContent()
 					err := ioutil.WriteFile(newFileName, []byte(fileContent), 0644)
@@ -53,9 +41,6 @@ func main() {
 						return err
 					}
 				}
-				// for _, s := range structs {
-				// 	fmt.Println(s.StructName)
-				// }
 			}
 			return nil
 		})

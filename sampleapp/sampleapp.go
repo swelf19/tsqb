@@ -1,7 +1,7 @@
 /* В devapp мы разрабатываем наш квери билдер и тесты к нему/
 
-Тесты и структуры копируем в sampleapp из devapp,
-кверибилдер для sampleapp генерируем из структур
+Тесты и структуры(devapp.go,devapp_test.go) копируем в sampleapp из devapp,
+кверибилдер(devapp_gen.go) для sampleapp генерируем из структур
 */
 
 package sampleapp

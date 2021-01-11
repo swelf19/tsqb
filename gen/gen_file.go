@@ -30,12 +30,11 @@ func NewFileMeta(s []StructMeta, packageName string, filename string, extraImpor
 		},
 		PackageName: packageName,
 		Content:     GenCode(s),
-		Filename:    filename,
+		// Content:  s.GenEntyreTemplate(),
+		Filename: filename,
 	}
-	if extraImports != nil {
-		for k := range extraImports {
-			f.Imports = append(f.Imports, extraImports[k])
-		}
+	for k := range extraImports {
+		f.Imports = append(f.Imports, extraImports[k])
 	}
 	return f
 }
@@ -44,18 +43,7 @@ func GenCode(structs []StructMeta) string {
 	Decls := []string{}
 	for _, s := range structs {
 		Decls = append(Decls,
-			s.genFieldConstantsBlock(),
-			s.genTableBlock(),
-			s.genConditions(),
-			s.genOrdering(),
-			s.genBuilderStruct(),
-			s.genBuilderResetMethod(),
-			s.genCreateBuilderFunction(),
-			s.genBuilderCommonMethods(),
-			s.genBuilderBaseQueryMethods(),
-			s.genComprationHelpers(),
-			s.genAdditionalStructMethods(),
-			s.genBuilderFetch(),
+			s.GenEntyreTemplate(),
 		)
 	}
 	return strings.Join(Decls, "\n")

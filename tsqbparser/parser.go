@@ -168,6 +168,16 @@ func isExtraImportRequered(fieldType string) bool {
 	return len(strings.Split(fieldType, ".")) == 2
 }
 
+func GetPackageName(path string) string {
+	fset := token.NewFileSet() // positions are relative to fset
+	astFile, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return astFile.Name.Name
+}
+
 func ParseAST(path string) (*ParseResult, error) {
 	fset := token.NewFileSet() // positions are relative to fset
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
