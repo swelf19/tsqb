@@ -132,6 +132,7 @@ func trimWrapQuotes(src string) string {
 }
 
 func parseImportNameFromPath(importPath string) string {
+	importPath = trimWrapQuotes(importPath)
 	name := strings.Split(importPath, "/")[len(strings.Split(importPath, "/"))-1]
 	match, _ := regexp.MatchString(`^v\d+$`, name)
 	if match {
