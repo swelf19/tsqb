@@ -22,23 +22,27 @@ func main() {
 			if err != nil {
 				return err
 			}
-
 			if !info.IsDir() {
+				if !strings.HasSuffix(path, ".go") {
+					return nil
+				}
 				pr, err := tsqbparser.ParseAST(path)
-				structs := pr.StructMetaList
 				if err != nil {
 					log.Println(err)
 					return err
 				}
-				if len(structs) > 0 {
-					newFileName := makefilename(path)
-					// fmt.Println(newFileName)
-					packageName := tsqbparser.GetPackageName(path)
-					filemeta := gen.NewFileMeta(structs, packageName, path, pr.ExtraImports)
-					fileContent := filemeta.GenFileContent()
-					err := ioutil.WriteFile(newFileName, []byte(fileContent), 0644)
-					if err != nil {
-						return err
+				if len(pr.StructMetaList) > 0 {
+					structs := pr.StructMetaList
+					if len(structs) > 0 {
+						newFileName := makefilename(path)
+						// fmt.Println(newFileName)
+						packageName := tsqbparser.GetPackageName(path)
+						filemeta := gen.NewFileMeta(structs, packageName, path, pr.ExtraImports)
+						fileContent := filemeta.GenFileContent()
+						err := ioutil.WriteFile(newFileName, []byte(fileContent), 0644)
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}
