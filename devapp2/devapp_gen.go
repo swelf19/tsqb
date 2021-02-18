@@ -544,12 +544,12 @@ func (q UserSelectQuery) getFieldsString() string {
 	return strings.Join(fields, ",")
 }
 
-func (b UserSelectQuery) Fetch(connection qtypes.DBConnection) ([]User, error) {
+func (b UserSelectQuery) Fetch(ctx context.Context, connection qtypes.DBConnection) ([]User, error) {
 	if connection == nil {
 		return nil, errors.New("Required to setup (SetDBConnection) connection before fetching")
 	}
 	values := []User{}
-	rows, err := connection.Query(context.Background(), b.SQL(), b.stmtParams...)
+	rows, err := connection.Query(ctx, b.SQL(), b.stmtParams...)
 	if err != nil {
 		return nil, err
 	}
@@ -591,12 +591,12 @@ type UserInsertQuery struct {
 	InsertParams []qtypes.InsertParam
 }
 
-func (q UserInsertQuery) Exec(connection qtypes.DBConnection) (int, error) {
+func (q UserInsertQuery) Exec(ctx context.Context, connection qtypes.DBConnection) (int, error) {
 	if connection == nil {
 		return 0, errors.New("Required to setup (SetDBConnection) connection before fetching")
 	}
 	var ret int
-	err := connection.QueryRow(context.Background(), q.SQL(), q.getInsertStmtParams()...).Scan(&ret)
+	err := connection.QueryRow(ctx, q.SQL(), q.getInsertStmtParams()...).Scan(&ret)
 	if err != nil {
 		return 0, fmt.Errorf("insert User error: %w", err)
 	}
@@ -651,11 +651,11 @@ type UserUpdateQuery struct {
 	startPlaceholderNumber int
 }
 
-func (q UserUpdateQuery) Exec(connection qtypes.DBConnection) error {
+func (q UserUpdateQuery) Exec(ctx context.Context, connection qtypes.DBConnection) error {
 	if connection == nil {
 		return errors.New("Required to setup (SetDBConnection) connection before fetching")
 	}
-	_, err := connection.Exec(context.Background(), q.SQL(), q.getUpdateStmtParams()...)
+	_, err := connection.Exec(ctx, q.SQL(), q.getUpdateStmtParams()...)
 	if err != nil {
 		return fmt.Errorf("update User error: %w", err)
 	}

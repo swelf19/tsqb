@@ -47,12 +47,12 @@ func (q {{.SelectQueryName}}) getFieldsString() string {
 	return strings.Join(fields, ",")
 }
 
-func (b {{.SelectQueryName}}) Fetch(connection qtypes.DBConnection) ([]{{.StructName}}, error) {
+func (b {{.SelectQueryName}}) Fetch(ctx context.Context, connection qtypes.DBConnection) ([]{{.StructName}}, error) {
 	if connection == nil {
 		return nil, errors.New("Required to setup (SetDBConnection) connection before fetching")
 	}
 	values := []{{.StructName}}{}
-	rows, err := connection.Query(context.Background(), b.SQL(), b.stmtParams...)
+	rows, err := connection.Query(ctx, b.SQL(), b.stmtParams...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,12 +94,12 @@ var INSERT_QUERY = `type {{.InsertQueryName}} struct {
 	InsertParams []qtypes.InsertParam
 }
 
-func (q {{.InsertQueryName}}) Exec(connection qtypes.DBConnection) (int, error) {
+func (q {{.InsertQueryName}}) Exec(ctx context.Context, connection qtypes.DBConnection) (int, error) {
 	if connection == nil {
 		return 0, errors.New("Required to setup (SetDBConnection) connection before fetching")
 	}
 	var ret int
-	err := connection.QueryRow(context.Background(), q.SQL(), q.getInsertStmtParams()...).Scan(&ret)
+	err := connection.QueryRow(ctx, q.SQL(), q.getInsertStmtParams()...).Scan(&ret)
 	if err != nil {
 		return 0, fmt.Errorf("insert {{.StructName}} error: %w", err)
 	}
@@ -155,11 +155,11 @@ var UPDATE_QUERY = `type {{.UpdateQueryName}} struct {
 	startPlaceholderNumber int
 }
 
-func (q {{.UpdateQueryName}}) Exec(connection qtypes.DBConnection) error {
+func (q {{.UpdateQueryName}}) Exec(ctx context.Context, connection qtypes.DBConnection) error {
 	if connection == nil {
 		return errors.New("Required to setup (SetDBConnection) connection before fetching")
 	}
-	_, err := connection.Exec(context.Background(), q.SQL(), q.getUpdateStmtParams()...)
+	_, err := connection.Exec(ctx, q.SQL(), q.getUpdateStmtParams()...)
 	if err != nil {
 		return fmt.Errorf("update {{.StructName}} error: %w", err)
 	}
