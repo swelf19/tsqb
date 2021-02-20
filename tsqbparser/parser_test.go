@@ -44,21 +44,31 @@ func (suite *StructParserTestSuite) TestParseAstFileToMetaStruct() {
 		{
 			StructName: "User",
 			TableName:  "users",
+			StructType: gen.RegularStruct,
 			Fields: []gen.StructFieldMeta{
 				{
-					FieldName:    "ID",
-					Type:         "int",
-					SqlFieldName: "id",
+					FieldName:      "ID",
+					Type:           "int",
+					SqlFieldName:   "id",
+					OrigFieldName:  "ID",
+					TableName:      "users",
+					FieldNameSpace: "User",
 				},
 				{
-					FieldName:    "UserName",
-					Type:         "string",
-					SqlFieldName: "username",
+					FieldName:      "UserName",
+					Type:           "string",
+					SqlFieldName:   "username",
+					OrigFieldName:  "UserName",
+					TableName:      "users",
+					FieldNameSpace: "User",
 				},
 				{
-					FieldName:    "LastLog",
-					Type:         "pgtype.Timestamptz",
-					SqlFieldName: "last_log",
+					FieldName:      "LastLog",
+					Type:           "pgtype.Timestamptz",
+					SqlFieldName:   "last_log",
+					OrigFieldName:  "LastLog",
+					TableName:      "users",
+					FieldNameSpace: "User",
 				},
 			},
 		},
@@ -109,6 +119,10 @@ func (suite *StructParserTestSuite) TestTagParser() {
 
 	actual = parseStructTag(``)
 	expected = TSQBTag{ColName: ""}
+	suite.Equal(expected, actual)
+
+	actual = parseStructTag("`tsqb:\"col=id,fk=Role\"`")
+	expected = TSQBTag{ColName: "id", Related: "Role"}
 	suite.Equal(expected, actual)
 }
 

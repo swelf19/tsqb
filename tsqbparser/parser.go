@@ -16,9 +16,12 @@ import (
 )
 
 var TSQB_PREFIX = "tsqb"
-var COLNAME_TAG = "col"
+
 var GEN_DIRECTIVE = "gen"
 var TABLE_NAME_FIELD = "tablename"
+
+var COLNAME_TAG = "col"
+var FOREIGNKEY_TAG = "fk"
 
 type TSQBCommand struct {
 	Command string
@@ -79,6 +82,7 @@ func getTSQBCommands(decl *ast.GenDecl) []TSQBCommand {
 
 type TSQBTag struct {
 	ColName string
+	Related string
 }
 
 func parseStructTag(tagValue string) TSQBTag {
@@ -93,6 +97,8 @@ func parseStructTag(tagValue string) TSQBTag {
 			if len(strings.Split(kv, "=")) == 2 {
 				if strings.Split(kv, "=")[0] == COLNAME_TAG {
 					tsqbtag.ColName = strings.Split(kv, "=")[1]
+				} else if strings.Split(kv, "=")[0] == FOREIGNKEY_TAG {
+					tsqbtag.Related = strings.Split(kv, "=")[1]
 				}
 			}
 		}
@@ -113,10 +119,13 @@ func parseTypeName(fset *token.FileSet, field *ast.Field) string {
 
 func parseField(f *ast.Field, fset *token.FileSet) gen.StructFieldMeta {
 	// fmt.Println(f.Type)
+	tsqbTag := parseStructTag(f.Tag.Value)
 	meta := gen.StructFieldMeta{
-		FieldName:    f.Names[0].Name,
-		Type:         parseTypeName(fset, f),
-		SqlFieldName: parseStructTag(f.Tag.Value).ColName,
+		FieldName:        f.Names[0].Name,
+		OrigFieldName:    f.Names[0].Name,
+		Type:             parseTypeName(fset, f),
+		SqlFieldName:     tsqbTag.ColName,
+		RelatedModelName: tsqbTag.Related,
 	}
 	return meta
 }
@@ -203,6 +212,7 @@ func ParseAST(path string) (*ParseResult, error) {
 					switch astStruct := node.Type.(type) {
 					case *ast.StructType:
 						s := gen.StructMeta{
+							StructType: gen.RegularStruct,
 							StructName: node.Name.String(),
 						}
 						for _, c := range commands {
@@ -212,6 +222,8 @@ func ParseAST(path string) (*ParseResult, error) {
 						}
 						for _, field := range astStruct.Fields.List {
 							m := parseField(field, fset)
+							m.TableName = s.TableName
+							m.FieldNameSpace = s.StructName
 							s.Fields = append(s.Fields, m)
 							if isExtraImportRequered(m.Type) {
 								importName := strings.Split(m.Type, ".")[0]

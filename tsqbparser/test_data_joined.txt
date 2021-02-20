@@ -9,5 +9,13 @@ import "github.com/jackc/pgtype"
 type User struct {
 	ID       int    `tsqb:"col=id"`
 	UserName string `tsqb:"col=username"`
-	LastLog  pgtype.Timestamptz `tsqb:"col=last_log"`
+	LastLog  pgtype.Timestamptz `tsqb:"col=last_log,fk=Role"`
+}
+
+//Role -
+//tsqb:gen
+//tsqb:tablename=roles
+type Role struct {
+	ID   int    `tsqb:"col=id"`
+	Name string `tsqb:"col=name"`
 }

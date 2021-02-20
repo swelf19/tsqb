@@ -19,10 +19,10 @@ type FileMeta struct {
 func NewFileMeta(s []StructMeta, packageName string, filename string, extraImports map[string]string) FileMeta {
 	f := FileMeta{
 		Imports: []string{
-			"bytes",
+			// "bytes",
 			"fmt",
 			"strings",
-			"text/template",
+			// "text/template",
 			"github.com/swelf19/tsqb/qtypes",
 			"github.com/swelf19/tsqb/qfuncs",
 			"errors",
@@ -43,9 +43,11 @@ func GenCode(structs []StructMeta) string {
 	Decls := []string{}
 	for _, s := range structs {
 		Decls = append(Decls,
-			s.GenEntyreTemplate(),
+			// s.GenEntryTemplate(),
+			s.GenNewEntryTemplate(),
 		)
 	}
+	fmt.Println(strings.Join(Decls, "\n"))
 	return strings.Join(Decls, "\n")
 }
 
@@ -57,6 +59,36 @@ func (f FileMeta) GenFileContent() string {
 		"{{.}}"
 		{{end}}
 	)
+
+	type builders struct{}
+
+	func Select() builders {
+		return builders{}
+	}
+
+	func Insert() insertBuilders {
+		return insertBuilders{}
+	}
+	
+	type insertBuilders struct{}
+
+	func Update() updateBuilders {
+		return updateBuilders{}
+	}
+	
+	type updateBuilders struct{}
+
+	func Delete() deleteBuilders {
+		return deleteBuilders{}
+	}
+	
+	type deleteBuilders struct{}
+	
+	type field struct {
+		FieldsName string
+		TableName  string
+	}
+	
 	{{.Content}}
 	`
 	subQueryTemplate, err := template.New("subquery").Parse(templ)

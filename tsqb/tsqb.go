@@ -32,6 +32,7 @@ func main() {
 					return err
 				}
 				if len(pr.StructMetaList) > 0 {
+					// structs := gen.JoinTables(pr.StructMetaList)
 					structs := pr.StructMetaList
 					if len(structs) > 0 {
 						newFileName := makefilename(path)
