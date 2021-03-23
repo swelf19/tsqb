@@ -15,35 +15,6 @@ import (
 	"context"
 )
 
-type builders struct{}
-
-func Select() builders {
-	return builders{}
-}
-
-func Insert() insertBuilders {
-	return insertBuilders{}
-}
-
-type insertBuilders struct{}
-
-func Update() updateBuilders {
-	return updateBuilders{}
-}
-
-type updateBuilders struct{}
-
-func Delete() deleteBuilders {
-	return deleteBuilders{}
-}
-
-type deleteBuilders struct{}
-
-type field struct {
-	FieldsName string
-	TableName  string
-}
-
 type userFields struct {
 	ID userIDField
 

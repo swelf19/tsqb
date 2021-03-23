@@ -47,7 +47,7 @@ func GenCode(structs []StructMeta) string {
 			s.GenNewEntryTemplate(),
 		)
 	}
-	fmt.Println(strings.Join(Decls, "\n"))
+	// fmt.Println(strings.Join(Decls, "\n"))
 	return strings.Join(Decls, "\n")
 }
 
@@ -59,35 +59,6 @@ func (f FileMeta) GenFileContent() string {
 		"{{.}}"
 		{{end}}
 	)
-
-	type builders struct{}
-
-	func Select() builders {
-		return builders{}
-	}
-
-	func Insert() insertBuilders {
-		return insertBuilders{}
-	}
-	
-	type insertBuilders struct{}
-
-	func Update() updateBuilders {
-		return updateBuilders{}
-	}
-	
-	type updateBuilders struct{}
-
-	func Delete() deleteBuilders {
-		return deleteBuilders{}
-	}
-	
-	type deleteBuilders struct{}
-	
-	type field struct {
-		FieldsName string
-		TableName  string
-	}
 	
 	{{.Content}}
 	`
