@@ -2,13 +2,10 @@ package main
 
 import (
 	"go/format"
-	"io/ioutil"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/swelf19/tsqb/gen"
-	"github.com/swelf19/tsqb/tsqbparser"
 )
 
 type GenFileTestSuite struct {
@@ -39,22 +36,22 @@ func (suite *GenFileTestSuite) FormatAndCompare(expected, actual string) {
 	suite.Equal(string(a1), string(a2))
 }
 
-func (suite *GenFileTestSuite) TestGenFile() {
-	path := "../devapp2/devapp.go"
-	path_gen := "../devapp2/devapp_gen.go"
-	pr, err := tsqbparser.ParseAST(path)
-	structs := pr.StructMetaList
-	suite.Assert().NoError(err)
+// func (suite *GenFileTestSuite) TestGenFile() {
+// 	path := "../devapp2/devapp.go"
+// 	path_gen := "../devapp2/devapp_gen.go"
+// 	pr, err := tsqbparser.ParseAST(path)
+// 	structs := pr.StructMetaList
+// 	suite.Assert().NoError(err)
 
-	packageName := tsqbparser.GetPackageName(path)
-	filemeta := gen.NewFileMeta(structs, packageName, path, pr.ExtraImports)
+// 	packageName := tsqbparser.GetPackageName(path)
+// 	filemeta := gen.NewFileMeta(structs, packageName, path, pr.ExtraImports)
 
-	fileContent := filemeta.GenFileContent()
-	origContent, err := ioutil.ReadFile(path_gen)
-	suite.Assert().NoError(err)
-	suite.FormatAndCompare(removeLeadingComment(string(origContent)), removeLeadingComment(fileContent))
+// 	fileContent := filemeta.GenFileContent()
+// 	origContent, err := ioutil.ReadFile(path_gen)
+// 	suite.Assert().NoError(err)
+// 	suite.FormatAndCompare(removeLeadingComment(string(origContent)), removeLeadingComment(fileContent))
 
-}
+// }
 
 func TestFileGeneration(t *testing.T) {
 	suite.Run(t, new(GenFileTestSuite))

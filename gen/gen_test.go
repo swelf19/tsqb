@@ -31,7 +31,7 @@ func (suite *GenCodeTestSuite) FormatAndCompare(expected, actual string) bool {
 	return suite.Equal(a1, a2)
 }
 
-func (suite *GenCodeTestSuite) TestGenJoinedStructs() {
+func (suite *GenCodeTestSuite) DisabledTestGenJoinedStructs() {
 	roleStruct := StructMeta{
 		StructType:  RegularStruct,
 		StructName:  "Role",
